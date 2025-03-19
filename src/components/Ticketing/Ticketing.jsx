@@ -200,7 +200,7 @@ const Ticket = () => {
     async function fetchRoomDetails(participantData) {
         try {
           // Extract emails from participantData array
-          const emails = participantData.map(participant => participant.email);
+          const uniqueID = participantData.map(participant => participant.uniqueID);
           
           // Make API call to backend with the emails
           const response = await fetch('https://cogni-acco-backend.onrender.com/allot/participants_rooms', {
@@ -208,7 +208,7 @@ const Ticket = () => {
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ emails })
+            body: JSON.stringify({ uniqueID })
           });
           
           if (!response.ok) {
