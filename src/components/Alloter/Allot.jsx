@@ -27,7 +27,7 @@ const Allot = () => {
         setUserDetails(null);
 
         try {
-            const response = await fetch(`http://localhost:5000/allot/user/${userId}`);
+            const response = await fetch(`https://cogni-acco-backend.onrender.com/allot/user/${userId}`);
             const data = await response.json();
     
             if (response.ok) {

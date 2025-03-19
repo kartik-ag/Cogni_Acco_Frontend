@@ -35,7 +35,7 @@ const Controls = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch("http://localhost:5000/allot/room_details")
+    fetch("https://cogni-acco-backend.onrender.com/allot/room_details")
       .then((res) => res.json())
       .then((data) => {
         setAllRoomData(data);
@@ -96,7 +96,7 @@ const Controls = () => {
   const fetchRoomDetails = useCallback(() => {
     if (!selectedRoomId) return;
     
-    fetch(`http://localhost:5000/allot/${selectedRoomId}`)
+    fetch(`https://cogni-acco-backend.onrender.com/allot/${selectedRoomId}`)
       .then(res => res.json())
       .then(roomData => {
         setSelectedRoom(roomData);
@@ -171,7 +171,7 @@ const Controls = () => {
 
     const updatedOccupied = selectedRoom.occupied + parseInt(peopleToAdd);
 
-    fetch(`http://localhost:5000/allot/update-room`, {
+    fetch(`https://cogni-acco-backend.onrender.com/allot/update-room`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

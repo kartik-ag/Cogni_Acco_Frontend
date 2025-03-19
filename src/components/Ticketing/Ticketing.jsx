@@ -175,7 +175,7 @@ const Ticket = () => {
         try {
             setVerificationStatus("⏳ Fetching scanned records...");
             
-            const response = await fetch("http://localhost:5000/api/get-scanned", {
+            const response = await fetch("https://cogni-acco-backend.onrender.com/api/get-scanned", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ uniqueIDs: idList }),
@@ -203,7 +203,7 @@ const Ticket = () => {
           const emails = participantData.map(participant => participant.email);
           
           // Make API call to backend with the emails
-          const response = await fetch('http://localhost:5000/allot/participants_rooms', {
+          const response = await fetch('https://cogni-acco-backend.onrender.com/allot/participants_rooms', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -230,7 +230,7 @@ const Ticket = () => {
             // Show a loading status while verification is happening
             setVerificationStatus("⏳ Verifying...");
             
-            const response = await fetch("http://localhost:5000/api/verify", {
+            const response = await fetch("https://cogni-acco-backend.onrender.com/api/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ uniqueId: qrData }),
