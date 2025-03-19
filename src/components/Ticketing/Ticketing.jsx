@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { use } from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +15,8 @@ const Ticket = () => {
     const scannerRef = useRef(null);
     const scanningRef = useRef(false);
     const resultsRef = useRef([]);
+    const [participantData, setParticipantData] = useState([])
+    const [roomDetails, setRoomDetails] = useState([])
     
     const handleRedirect = () => {
         navigate("/controls", { state: { users: scannedResults } });
@@ -121,6 +123,7 @@ const Ticket = () => {
                         setIsScanning(false);
                         scanningRef.current = false;
                         setVerificationStatus("✅ All scans complete!");
+                        fetchScannedRecords(newResults)
                     } else {
                         // Clear the current scanner and create a new one for the next person
                         if (scannerRef.current) {
@@ -149,6 +152,12 @@ const Ticket = () => {
             );
         }, 100);
     };
+
+    useEffect(()=>{
+        if (participantData.length > 0){
+            fetchRoomDetails(participantData)
+        }
+    },[participantData])
     
     // Clean up scanner when component unmounts
     useEffect(() => {
@@ -161,13 +170,67 @@ const Ticket = () => {
             }
         };
     }, []);
+
+    const fetchScannedRecords = async (idList) => {
+        try {
+            setVerificationStatus("⏳ Fetching scanned records...");
+            
+            const response = await fetch("http://localhost:5000/api/get-scanned", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ uniqueIDs: idList }),
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                setVerificationStatus("✅ All details retrieved successfully!");
+                setParticipantData(data.data)
+            } else {
+                console.error("Failed to retrieve scanned records:", data.error);
+                setVerificationStatus("⚠️ Room details retrieved, but couldn't fetch scanned records.");
+            }
+        } catch (error) {
+            console.error("Error fetching scanned records:", error);
+            setVerificationStatus("⚠️ Error connecting to server when fetching scanned records.");
+        }
+    };
+
+
+    async function fetchRoomDetails(participantData) {
+        try {
+          // Extract emails from participantData array
+          const emails = participantData.map(participant => participant.email);
+          
+          // Make API call to backend with the emails
+          const response = await fetch('http://localhost:5000/allot/participants_rooms', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ emails })
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          
+          // Parse and return the room details
+          const details = await response.json();
+          
+          setRoomDetails(details)
+        } catch (error) {
+          console.error('Error fetching room details:', error);
+          throw error;
+        }
+      }
     
     const verifyEntry = async (qrData, scanCount) => {
         try {
             // Show a loading status while verification is happening
             setVerificationStatus("⏳ Verifying...");
             
-            const response = await fetch("https://cogni-acco-backend.onrender.com/api/verify", {
+            const response = await fetch("http://localhost:5000/api/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ uniqueId: qrData }),
@@ -269,11 +332,25 @@ const Ticket = () => {
                             </ul>
                         </div>
                     )}
+
+                    {roomDetails.length > 0 && (
+                        <div className='results-section'>
+                            <h3>Room Details:</h3>
+                            <ul className="id-list">
+                                {roomDetails.map((details, index) => (
+                                    <li key={index} className="id-item">
+                                        {index + 1}. {details.email} - {details.bhawan_name} - {details.room_number}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
                     
                     <button className="rescan-btn" onClick={resetScanner}>
                         🔄 Reset Scanner
                     </button>
-                    {!isScanning && <button className="rescan-btn" onClick={handleRedirect}>Go to Controls</button>}
+                    
                 </div>
             )}
         </div>

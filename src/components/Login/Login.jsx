@@ -26,7 +26,7 @@ const Login = () => {
     setError('');
     
     try {
-      const response = await axios.post('https://cogni-acco-backend.onrender.com/api/auth/verify-phone', {
+      const response = await axios.post('http://localhost:5000/api/auth/verify-phone', {
         phoneNumber
       });
       
